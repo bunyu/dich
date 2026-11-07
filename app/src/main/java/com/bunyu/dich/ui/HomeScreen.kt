@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -38,9 +39,9 @@ import com.bunyu.dich.R
 import com.bunyu.dich.ui.theme.Blue
 import com.bunyu.dich.ui.theme.Green
 
-/** Two buttons filling the screen. Settings hide behind a 3-second press on the small gear. */
+/** Two big buttons filling the screen, and a smaller one for past translations. Settings hide behind a 3-second press on the small gear. */
 @Composable
-fun HomeScreen(onTalk: () -> Unit, onRead: () -> Unit, onSettings: () -> Unit) {
+fun HomeScreen(onTalk: () -> Unit, onRead: () -> Unit, onHistory: () -> Unit, onSettings: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,6 +65,13 @@ fun HomeScreen(onTalk: () -> Unit, onRead: () -> Unit, onSettings: () -> Unit) {
             color = Green,
             onClick = onRead,
             modifier = Modifier.weight(1f),
+        )
+        BigButton(
+            text = stringResource(R.string.home_history),
+            icon = Icons.Filled.History,
+            onClick = onHistory,
+            container = Color(0xFF555555),
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

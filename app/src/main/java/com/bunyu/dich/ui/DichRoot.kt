@@ -7,9 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
-enum class Screen { Home, Camera, Talk, Settings }
+enum class Screen { Home, Camera, Talk, History, Settings }
 
-/** Navigation is a single variable: there are only four screens, and Back always returns home. */
+/** Navigation is a single variable: there are only a few screens, and Back always returns home. */
 @Composable
 fun DichRoot() {
     var screen by rememberSaveable { mutableStateOf(Screen.Home) }
@@ -21,10 +21,12 @@ fun DichRoot() {
         Screen.Home -> HomeScreen(
             onTalk = { screen = Screen.Talk },
             onRead = { screen = Screen.Camera },
+            onHistory = { screen = Screen.History },
             onSettings = { screen = Screen.Settings },
         )
         Screen.Camera -> CameraScreen(onBack = goHome)
         Screen.Talk -> TalkScreen(onBack = goHome)
+        Screen.History -> HistoryScreen(onBack = goHome)
         Screen.Settings -> SettingsScreen(onBack = goHome)
     }
 }

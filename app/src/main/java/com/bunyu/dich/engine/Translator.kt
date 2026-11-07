@@ -50,5 +50,7 @@ class OnDeviceTranslator : TextTranslator {
         val conditions = DownloadConditions.Builder().build()
         client(Lang.FR, Lang.VI).downloadModelIfNeeded(conditions).await()
         client(Lang.EN, Lang.VI).downloadModelIfNeeded(conditions).await()
+        client(Lang.VI, Lang.FR).downloadModelIfNeeded(conditions).await()
+        client(Lang.VI, Lang.EN).downloadModelIfNeeded(conditions).await()
     }
 }

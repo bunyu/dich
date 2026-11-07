@@ -30,7 +30,17 @@
     <string name="error_need_internet">Cần có mạng để tải dữ liệu dịch lần đầu.</string>
     <string name="error_generic">Có lỗi. Xin thử lại.</string>
 
-    <string name="talk_coming">Phần nói chuyện sắp có.</string>
+    <string name="talk_intro">Bấm nút xanh rồi nói. Người bán bấm nút phía bên kia.</string>
+    <string name="talk_press">Bấm để nói</string>
+    <string name="talk_listening">Đang nghe… bấm để xong</string>
+    <string name="talk_replay">Nghe lại</string>
+    <string name="talk_they_said">Người kia nói:</string>
+    <string name="talk_you_said">Bạn nói:</string>
+    <string name="talk_needs_internet">Cần có mạng để nghe tiếng này.</string>
+    <string name="mic_permission">Cần cho phép dùng micrô để nghe.</string>
+
+    <string name="home_history">Đã dịch</string>
+    <string name="history_empty">Chưa có gì.</string>
 
     <string name="lang_fr">tiếng Pháp</string>
     <string name="lang_en">tiếng Anh</string>
@@ -45,6 +55,12 @@
     <string name="voice_missing">Chưa có giọng đọc tiếng Việt. Hãy tải giọng tiếng Việt trong cài đặt Android.</string>
     <string name="open_tts_settings">Mở cài đặt giọng đọc</string>
     <string name="engine_in_use">Bộ đọc đang dùng: %1$s</string>
+    <string name="auto_read">Tự động đọc to</string>
+    <string name="auto_read_hint">Tắt: chỉ đọc khi bấm nút Đọc to / Nghe lại.</string>
+    <string name="speech_section">Nhận dạng giọng nói</string>
+    <string name="speech_ready">Có sẵn trên máy</string>
+    <string name="speech_missing">Không có. Hãy cài ứng dụng Google.</string>
+    <string name="history_clear">Xoá lịch sử dịch</string>
     <string name="speech_rate">Tốc độ đọc</string>
     <string name="text_size">Cỡ chữ</string>
     <string name="text_size_sample">Chữ mẫu</string>

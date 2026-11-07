@@ -4,13 +4,17 @@
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Needed once to download the offline translation models. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Lets the app see installed text-to-speech engines (Android 11+). -->
+    <!-- Lets the app see installed voice and speech-recognition engines (Android 11+). -->
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
         </intent>
     </queries>
 

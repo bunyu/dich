@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,7 +42,7 @@ import com.bunyu.dich.engine.Lang
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/** Family settings: voice, reading speed, text size, offline data. Not meant for the main user. */
+/** Family settings: automatic reading, voice, reading speed, text size, offline data. Not meant for the main user. */
 @Composable
 fun SettingsScreen(onBack: () -> Unit) {
     val context = LocalContext.current
@@ -57,6 +58,8 @@ fun SettingsScreen(onBack: () -> Unit) {
     var textSize by remember { mutableFloatStateOf(prefs.textSizeSp) }
     var models by remember { mutableStateOf<Set<Lang>>(emptySet()) }
     var downloading by remember { mutableStateOf(false) }
+    var autoRead by remember { mutableStateOf(prefs.autoRead) }
+    val canListen = remember { app.listener.isAvailable() }
     val testPhrase = stringResource(R.string.voice_test_phrase)
 
     LaunchedEffect(Unit) {
@@ -81,6 +84,21 @@ fun SettingsScreen(onBack: () -> Unit) {
     ) {
         BackButton(onBack)
         Text(stringResource(R.string.settings_title), style = MaterialTheme.typography.headlineMedium)
+
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.auto_read), style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.auto_read_hint), style = MaterialTheme.typography.bodyMedium)
+            }
+            Switch(
+                checked = autoRead,
+                onCheckedChange = {
+                    autoRead = it
+                    prefs.autoRead = it
+                    if (!it) speaker.stop()
+                },
+            )
+        }
 
         Section(stringResource(R.string.voice_section))
         Text(stringResource(R.string.engine_in_use, engine), style = MaterialTheme.typography.bodyMedium)
@@ -137,6 +155,12 @@ fun SettingsScreen(onBack: () -> Unit) {
         )
         Text(stringResource(R.string.text_size_sample), fontSize = textSize.sp)
 
+        Section(stringResource(R.string.speech_section))
+        Text(
+            stringResource(if (canListen) R.string.speech_ready else R.string.speech_missing),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+
         Section(stringResource(R.string.models_section))
         listOf(Lang.FR, Lang.EN, Lang.VI).forEach { lang ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -162,6 +186,10 @@ fun SettingsScreen(onBack: () -> Unit) {
                 stringResource(if (downloading) R.string.models_downloading else R.string.models_download),
                 style = MaterialTheme.typography.bodyMedium,
             )
+        }
+        HorizontalDivider(Modifier.padding(top = 8.dp))
+        OutlinedButton(onClick = { app.history.clear() }) {
+            Text(stringResource(R.string.history_clear), style = MaterialTheme.typography.bodyMedium)
         }
         Spacer(Modifier.height(32.dp))
     }

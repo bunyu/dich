@@ -1,6 +1,7 @@
 package com.bunyu.dich
 
 import android.content.Context
+import com.bunyu.dich.engine.Lang
 
 /** Small settings store. Changed only from the hidden family settings screen. */
 class Prefs(context: Context) {
@@ -21,7 +22,19 @@ class Prefs(context: Context) {
         get() = sp.getFloat(KEY_SPEECH_RATE, 0.85f)
         set(value) = sp.edit().putFloat(KEY_SPEECH_RATE, value).apply()
 
+    /** Read results aloud automatically. When off, text is only spoken when a button is pressed. */
+    var autoRead: Boolean
+        get() = sp.getBoolean(KEY_AUTO_READ, true)
+        set(value) = sp.edit().putBoolean(KEY_AUTO_READ, value).apply()
+
+    /** Language of the other person in conversation mode (French or English). */
+    var vendorLang: Lang
+        get() = if (sp.getString(KEY_VENDOR_LANG, "fr") == "en") Lang.EN else Lang.FR
+        set(value) = sp.edit().putString(KEY_VENDOR_LANG, if (value == Lang.EN) "en" else "fr").apply()
+
     private companion object {
+        const val KEY_AUTO_READ = "auto_read"
+        const val KEY_VENDOR_LANG = "vendor_lang"
         const val KEY_VOICE = "voice"
         const val KEY_TEXT_SIZE = "text_size"
         const val KEY_SPEECH_RATE = "speech_rate"

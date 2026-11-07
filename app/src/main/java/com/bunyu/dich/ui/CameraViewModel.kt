@@ -68,7 +68,8 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
             }
             val done = CameraState.Done(photo, from, blocks)
             state = done
-            app.speaker.speak(done.vietnamese)
+            app.history.add(done.vietnamese, done.original, from)
+            if (app.prefs.autoRead) app.speaker.speak(done.vietnamese)
         }
     }
 
@@ -86,7 +87,7 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun fail(@StringRes message: Int) {
         state = CameraState.Failed(message)
-        app.speaker.speak(getApplication<Application>().getString(message))
+        if (app.prefs.autoRead) app.speaker.speak(getApplication<Application>().getString(message))
     }
 
     override fun onCleared() {

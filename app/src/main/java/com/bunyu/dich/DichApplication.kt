@@ -2,7 +2,9 @@ package com.bunyu.dich
 
 import android.app.Application
 import android.content.Context
+import com.bunyu.dich.engine.History
 import com.bunyu.dich.engine.LanguageGuesser
+import com.bunyu.dich.engine.Listener
 import com.bunyu.dich.engine.OnDeviceTranslator
 import com.bunyu.dich.engine.Speaker
 import com.bunyu.dich.engine.TextReader
@@ -14,6 +16,8 @@ class DichApplication : Application() {
     val translator by lazy { OnDeviceTranslator() }
     val textReader by lazy { TextReader() }
     val languageGuesser by lazy { LanguageGuesser() }
+    val listener by lazy { Listener(this) }
+    val history by lazy { History(this) }
 }
 
 val Context.dichApp: DichApplication
