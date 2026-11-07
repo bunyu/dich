@@ -24,6 +24,8 @@
     <string name="retake">Chụp lại</string>
     <string name="show_original">Xem chữ gốc</string>
     <string name="hide_original">Ẩn chữ gốc</string>
+    <string name="engine_online">trực tuyến</string>
+    <string name="engine_offline">ngoại tuyến</string>
     <string name="translated_from">Dịch từ %1$s</string>
 
     <string name="no_text">Không thấy chữ. Xin chụp lại gần hơn.</string>
@@ -64,6 +66,12 @@
     <string name="speech_rate">Tốc độ đọc</string>
     <string name="text_size">Cỡ chữ</string>
     <string name="text_size_sample">Chữ mẫu</string>
+    <string name="online_section">Dịch trực tuyến (Google)</string>
+    <string name="online_hint">Khi có mạng và có khoá API, ứng dụng dùng Google Cloud Translation (tốt hơn nhiều). Không có mạng thì tự dùng bản ngoại tuyến.</string>
+    <string name="online_key">Khoá API Google Cloud</string>
+    <string name="online_test">Thử dịch trực tuyến</string>
+    <string name="online_test_ok">Được:</string>
+    <string name="online_test_fail">Lỗi:</string>
     <string name="models_section">Dữ liệu dịch ngoại tuyến</string>
     <string name="models_download">Tải về</string>
     <string name="model_ready">Đã có</string>

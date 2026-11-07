@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bunyu.dich.R
 import com.bunyu.dich.dichApp
+import com.bunyu.dich.engine.Engine
 import com.bunyu.dich.engine.Lang
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -20,7 +21,12 @@ data class TranslatedBlock(val original: String, val vietnamese: String)
 sealed interface CameraState {
     data object Aiming : CameraState
     data class Working(val photo: Bitmap, @StringRes val message: Int) : CameraState
-    data class Done(val photo: Bitmap, val from: Lang, val blocks: List<TranslatedBlock>) : CameraState {
+    data class Done(
+        val photo: Bitmap,
+        val from: Lang,
+        val blocks: List<TranslatedBlock>,
+        val engine: Engine,
+    ) : CameraState {
         val vietnamese: String get() = blocks.joinToString("\n\n") { it.vietnamese }
         val original: String get() = blocks.joinToString("\n\n") { it.original }
     }
@@ -52,7 +58,8 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
 
             val from = runCatching { app.languageGuesser.guess(lines.joinToString(" ")) }
                 .getOrDefault(Lang.FR)
-            val haveModels = runCatching { app.translator.downloadedLanguages() }
+            val online = app.translator.willUseOnline()
+            val haveModels = online || runCatching { app.offlineTranslator.downloadedLanguages() }
                 .getOrDefault(emptySet())
                 .containsAll(setOf(from, Lang.VI))
             state = CameraState.Working(
@@ -61,12 +68,13 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
             )
 
             val blocks = try {
-                lines.map { TranslatedBlock(it, app.translator.translate(it, from, Lang.VI)) }
+                val translated = app.translator.translateAll(lines, from, Lang.VI)
+                lines.zip(translated) { original, vi -> TranslatedBlock(original, vi) }
             } catch (e: Exception) {
                 fail(if (haveModels) R.string.error_generic else R.string.error_need_internet)
                 return@launch
             }
-            val done = CameraState.Done(photo, from, blocks)
+            val done = CameraState.Done(photo, from, blocks, app.translator.lastEngine)
             state = done
             app.history.add(done.vietnamese, done.original, from)
             if (app.prefs.autoRead) app.speaker.speak(done.vietnamese)

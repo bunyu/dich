@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -34,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bunyu.dich.R
@@ -59,6 +61,10 @@ fun SettingsScreen(onBack: () -> Unit) {
     var models by remember { mutableStateOf<Set<Lang>>(emptySet()) }
     var downloading by remember { mutableStateOf(false) }
     var autoRead by remember { mutableStateOf(prefs.autoRead) }
+    var apiKey by remember { mutableStateOf(prefs.googleApiKey.orEmpty()) }
+    var keyTest by remember { mutableStateOf<String?>(null) }
+    val testOk = stringResource(R.string.online_test_ok)
+    val testFail = stringResource(R.string.online_test_fail)
     val canListen = remember { app.listener.isAvailable() }
     val testPhrase = stringResource(R.string.voice_test_phrase)
 
@@ -71,7 +77,7 @@ fun SettingsScreen(onBack: () -> Unit) {
         }
         voices = speaker.vietnameseVoices()
         engine = speaker.engineName
-        models = runCatching { app.translator.downloadedLanguages() }.getOrDefault(emptySet())
+        models = runCatching { app.offlineTranslator.downloadedLanguages() }.getOrDefault(emptySet())
     }
 
     Column(
@@ -161,6 +167,38 @@ fun SettingsScreen(onBack: () -> Unit) {
             style = MaterialTheme.typography.bodyMedium,
         )
 
+        Section(stringResource(R.string.online_section))
+        Text(stringResource(R.string.online_hint), style = MaterialTheme.typography.bodyMedium)
+        OutlinedTextField(
+            value = apiKey,
+            onValueChange = {
+                apiKey = it.trim()
+                prefs.googleApiKey = apiKey
+                keyTest = null
+            },
+            label = { Text(stringResource(R.string.online_key)) },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedButton(
+            enabled = apiKey.isNotBlank(),
+            onClick = {
+                keyTest = "…"
+                scope.launch {
+                    keyTest = try {
+                        val vi = app.onlineTranslator.translateAll(listOf("Bonjour, ça va ?"), Lang.FR, Lang.VI)
+                        "$testOk ${vi.first()}"
+                    } catch (e: Exception) {
+                        "$testFail ${e.message.orEmpty().take(200)}"
+                    }
+                }
+            },
+        ) {
+            Text(stringResource(R.string.online_test), style = MaterialTheme.typography.bodyMedium)
+        }
+        keyTest?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
+
         Section(stringResource(R.string.models_section))
         listOf(Lang.FR, Lang.EN, Lang.VI).forEach { lang ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -176,8 +214,8 @@ fun SettingsScreen(onBack: () -> Unit) {
             onClick = {
                 downloading = true
                 scope.launch {
-                    runCatching { app.translator.ensureModels() }
-                    models = runCatching { app.translator.downloadedLanguages() }.getOrDefault(models)
+                    runCatching { app.offlineTranslator.ensureModels() }
+                    models = runCatching { app.offlineTranslator.downloadedLanguages() }.getOrDefault(models)
                     downloading = false
                 }
             },

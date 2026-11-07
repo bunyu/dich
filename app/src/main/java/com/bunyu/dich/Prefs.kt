@@ -32,7 +32,13 @@ class Prefs(context: Context) {
         get() = if (sp.getString(KEY_VENDOR_LANG, "fr") == "en") Lang.EN else Lang.FR
         set(value) = sp.edit().putString(KEY_VENDOR_LANG, if (value == Lang.EN) "en" else "fr").apply()
 
+    /** Google Cloud Translation API key. Empty means offline translation only. */
+    var googleApiKey: String?
+        get() = sp.getString(KEY_GOOGLE_API_KEY, null)
+        set(value) = sp.edit().putString(KEY_GOOGLE_API_KEY, value?.trim()).apply()
+
     private companion object {
+        const val KEY_GOOGLE_API_KEY = "google_api_key"
         const val KEY_AUTO_READ = "auto_read"
         const val KEY_VENDOR_LANG = "vendor_lang"
         const val KEY_VOICE = "voice"

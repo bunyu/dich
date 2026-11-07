@@ -8,9 +8,13 @@ import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
 import kotlinx.coroutines.tasks.await
 
-/** Anything that can translate text. The online "better quality" translator (M4) will implement this too. */
+/** Anything that can translate text. */
 interface TextTranslator {
     suspend fun translate(text: String, from: Lang, to: Lang): String
+
+    /** Translates several texts at once (one network request for the online engine). */
+    suspend fun translateAll(texts: List<String>, from: Lang, to: Lang): List<String> =
+        texts.map { translate(it, from, to) }
 }
 
 /** Google ML Kit translation: free, offline once each language model (about 30 MB) is downloaded. */

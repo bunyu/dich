@@ -4,7 +4,7 @@ An Android app that translates between French, English and Vietnamese, designed 
 person who only reads and speaks Vietnamese. The whole interface is in Vietnamese, buttons are
 large, and every translation is read aloud.
 
-Status: camera translation, conversation mode, market phrases and history are in. Online translation is next.
+Status: camera translation, conversation mode, market phrases, history and online translation are in.
 
 ## What it does today
 
@@ -19,6 +19,25 @@ Status: camera translation, conversation mode, market phrases and history are in
 - **Đã dịch** (history): the last 50 translations, each with a read-aloud button.
 - Family settings: press and hold the faint gear icon on the home screen for 3 seconds. Turn automatic
   read-aloud on or off, choose the Vietnamese voice, reading speed, text size, and download the offline translation data.
+
+## Better translation online (Google Cloud Translation)
+
+Offline translation (ML Kit) is understandable but often wrong. When the phone is online and a
+Google Cloud API key is set, the app uses Google Cloud Translation instead and falls back to
+offline automatically. The first 500,000 characters each month are free (a $10 monthly credit;
+see [pricing](https://cloud.google.com/translate/pricing)), far more than one person uses.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create a project and attach a
+   billing account (required even for the free allowance).
+2. Enable the **Cloud Translation API**.
+3. APIs & Services > Credentials > **Create credentials > API key**. Restrict it to the Cloud
+   Translation API. Optionally restrict it to Android apps: package `com.bunyu.dich` and the
+   SHA-1 of the signing key (`gradlew.bat signingReport`).
+4. On her phone: family settings > **Dịch trực tuyến (Google)** > paste the key > **Thử dịch
+   trực tuyến** to check it.
+
+The key is stored only on the phone, never in this repository. The result screen shows
+"trực tuyến" or "ngoại tuyến" so you can tell which engine was used.
 
 ## Build the APK (Windows)
 
@@ -45,4 +64,4 @@ on every push (see the "Build APK" workflow artifacts).
 ## Tech
 
 Kotlin, Jetpack Compose, CameraX, ML Kit (text recognition, translation, language ID), Android
-TextToSpeech. All processing runs on the phone.
+TextToSpeech. Everything runs on the phone, except the optional Google Cloud Translation call.

@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
         dichApp.speaker
         // Fetch the offline translation models in the background (needs internet once).
         lifecycleScope.launch {
-            runCatching { dichApp.translator.ensureModels() }
+            runCatching { dichApp.offlineTranslator.ensureModels() }
         }
 
         setContent {
