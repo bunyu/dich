@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The whole app is in Vietnamese: the user only reads Vietnamese. -->
+<resources>
+    <string name="app_name">Dịch</string>
+
+    <string name="home_talk">Nói chuyện</string>
+    <string name="home_read">Đọc chữ</string>
+    <string name="settings">Cài đặt</string>
+    <string name="back">Quay lại</string>
+
+    <string name="camera_hint">Hướng máy vào chữ rồi bấm nút Dịch</string>
+    <string name="camera_translate">Dịch</string>
+    <string name="torch">Đèn</string>
+    <string name="camera_permission">Cần cho phép dùng máy ảnh để đọc chữ.</string>
+    <string name="allow">Cho phép</string>
+    <string name="capture_error">Không chụp được ảnh. Xin thử lại.</string>
+
+    <string name="reading">Đang đọc chữ…</string>
+    <string name="translating">Đang dịch…</string>
+    <string name="downloading_models">Đang tải dữ liệu dịch lần đầu. Cần có mạng…</string>
+
+    <string name="read_aloud">Đọc to</string>
+    <string name="stop_reading">Dừng đọc</string>
+    <string name="retake">Chụp lại</string>
+    <string name="show_original">Xem chữ gốc</string>
+    <string name="hide_original">Ẩn chữ gốc</string>
+    <string name="translated_from">Dịch từ %1$s</string>
+
+    <string name="no_text">Không thấy chữ. Xin chụp lại gần hơn.</string>
+    <string name="error_need_internet">Cần có mạng để tải dữ liệu dịch lần đầu.</string>
+    <string name="error_generic">Có lỗi. Xin thử lại.</string>
+
+    <string name="talk_coming">Phần nói chuyện sắp có.</string>
+
+    <string name="lang_fr">tiếng Pháp</string>
+    <string name="lang_en">tiếng Anh</string>
+    <string name="lang_vi">tiếng Việt</string>
+
+    <!-- Settings: hidden behind a 3 second press, meant for family. -->
+    <string name="settings_title">Cài đặt (cho người nhà)</string>
+    <string name="voice_section">Giọng đọc tiếng Việt</string>
+    <string name="voice_test">Nghe thử</string>
+    <string name="voice_test_phrase">Xin chào. Đây là giọng đọc thử.</string>
+    <string name="voice_default">Giọng mặc định</string>
+    <string name="voice_missing">Chưa có giọng đọc tiếng Việt. Hãy tải giọng tiếng Việt trong cài đặt Android.</string>
+    <string name="open_tts_settings">Mở cài đặt giọng đọc</string>
+    <string name="engine_in_use">Bộ đọc đang dùng: %1$s</string>
+    <string name="speech_rate">Tốc độ đọc</string>
+    <string name="text_size">Cỡ chữ</string>
+    <string name="text_size_sample">Chữ mẫu</string>
+    <string name="models_section">Dữ liệu dịch ngoại tuyến</string>
+    <string name="models_download">Tải về</string>
+    <string name="model_ready">Đã có</string>
+    <string name="model_missing">Chưa có</string>
+    <string name="models_downloading">Đang tải…</string>
+</resources>
