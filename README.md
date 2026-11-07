@@ -20,6 +20,25 @@ Status: camera translation, conversation mode, market phrases, history and onlin
 - Family settings: press and hold the faint gear icon on the home screen for 3 seconds. Turn automatic
   read-aloud on or off, choose the Vietnamese voice, reading speed, text size, and download the offline translation data.
 
+## Better translation online (Gemini, easiest)
+
+With internet and a Gemini key, the app translates with Google Gemini first, then Google Cloud
+Translation if that key is set, then the offline models. Only one key is needed.
+
+1. Open [Google AI Studio](https://aistudio.google.com/apikey), sign in with a Google account and
+   press **Create API key**.
+2. Either type the key on the phone (Home: hold the gear 3 s, section "Dịch trực tuyến", field
+   "Khoá API Gemini", then "Thử Gemini"), or put it in `local.properties` on the build PC (never
+   committed) and rebuild:
+
+   ```
+   gemini.apiKey=AIza...your key...
+   ```
+
+The free tier has rate limits and Google may use free-tier requests to improve its products.
+The result screen shows which engine was used: "trực tuyến · Gemini", "trực tuyến · Google" or
+"ngoại tuyến".
+
 ## Better translation online (Google Cloud Translation)
 
 Offline translation (ML Kit) is understandable but often wrong. When the phone is online and a
@@ -99,4 +118,4 @@ install over it.
 ## Tech
 
 Kotlin, Jetpack Compose, CameraX, ML Kit (text recognition, translation, language ID), Android
-TextToSpeech. Everything runs on the phone, except the optional Google Cloud Translation call.
+TextToSpeech. Everything runs on the phone, except the optional Gemini / Google Cloud Translation calls.

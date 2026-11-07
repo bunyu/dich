@@ -3,6 +3,8 @@ package com.bunyu.dich.engine
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -10,10 +12,17 @@ import android.speech.SpeechRecognizer
 /**
  * Turns speech into text with Android's speech recognizer. Tries offline first; if the
  * offline language pack is missing, retries once online. Must be used from the main thread.
+ *
+ * One recognizer is reused for every press: creating and destroying one each time makes Google's
+ * recognizer answer "busy" or "client error", which forced several presses before it listened.
+ * Every start gets a session number, and callbacks from an older session are ignored, so a late
+ * error from a finished recognition can no longer replace a good result with "Có lỗi".
  */
 class Listener(context: Context) {
     private val appContext = context.applicationContext
+    private val main = Handler(Looper.getMainLooper())
     private var recognizer: SpeechRecognizer? = null
+    private var session = 0
 
     fun isAvailable(): Boolean = SpeechRecognizer.isRecognitionAvailable(appContext)
 
@@ -22,26 +31,33 @@ class Listener(context: Context) {
         onPartial: (String) -> Unit,
         onResult: (String) -> Unit,
         onError: (ListenError) -> Unit,
-    ) = start(lang, preferOffline = true, onPartial, onResult, onError)
+    ) = start(lang, preferOffline = true, busyRetries = 2, onPartial, onResult, onError)
+
+    private fun recognizer(): SpeechRecognizer =
+        recognizer ?: SpeechRecognizer.createSpeechRecognizer(appContext).also { recognizer = it }
 
     private fun start(
         lang: Lang,
         preferOffline: Boolean,
+        busyRetries: Int,
         onPartial: (String) -> Unit,
         onResult: (String) -> Unit,
         onError: (ListenError) -> Unit,
     ) {
-        cancel()
-        val r = SpeechRecognizer.createSpeechRecognizer(appContext)
-        recognizer = r
+        main.removeCallbacksAndMessages(null)
+        val my = ++session
+        val r = recognizer()
+        r.cancel()
         r.setRecognitionListener(object : RecognitionListener {
             override fun onResults(results: Bundle?) {
+                if (my != session) return
+                session++ // this recognition is finished: ignore anything it sends later
                 val text = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()
-                cancel()
                 if (text.isNullOrBlank()) onError(ListenError.NotHeard) else onResult(text)
             }
 
             override fun onPartialResults(partialResults: Bundle?) {
+                if (my != session) return
                 partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     ?.firstOrNull()
                     ?.takeIf { it.isNotBlank() }
@@ -49,14 +65,29 @@ class Listener(context: Context) {
             }
 
             override fun onError(error: Int) {
-                cancel()
+                if (my != session) return
+                // Busy / client errors right after a previous recognition: wait a moment and retry.
+                if ((error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY || error == SpeechRecognizer.ERROR_CLIENT) &&
+                    busyRetries > 0
+                ) {
+                    session++
+                    if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY) {
+                        recognizer?.destroy()
+                        recognizer = null
+                    }
+                    main.postDelayed({
+                        start(lang, preferOffline, busyRetries - 1, onPartial, onResult, onError)
+                    }, 400)
+                    return
+                }
                 val offlineMissing = error == ERROR_LANGUAGE_NOT_SUPPORTED ||
                     error == ERROR_LANGUAGE_UNAVAILABLE ||
                     error == SpeechRecognizer.ERROR_SERVER
                 if (preferOffline && offlineMissing) {
-                    start(lang, preferOffline = false, onPartial, onResult, onError)
+                    start(lang, preferOffline = false, busyRetries, onPartial, onResult, onError)
                     return
                 }
+                session++
                 onError(
                     when (error) {
                         SpeechRecognizer.ERROR_NO_MATCH,
@@ -98,8 +129,16 @@ class Listener(context: Context) {
         recognizer?.stopListening()
     }
 
-    /** Stop and discard. */
+    /** Stop and discard; later callbacks are ignored. */
     fun cancel() {
+        main.removeCallbacksAndMessages(null)
+        session++
+        recognizer?.cancel()
+    }
+
+    /** Free the recognizer (when leaving the conversation screen). */
+    fun release() {
+        cancel()
         recognizer?.destroy()
         recognizer = null
     }

@@ -41,7 +41,18 @@ class Prefs(context: Context) {
             ?: BuildConfig.GOOGLE_API_KEY.takeIf { it.isNotBlank() }
         set(value) = sp.edit().putString(KEY_GOOGLE_API_KEY, value?.trim()).apply()
 
+    /** Gemini API key (Google AI Studio) typed in family settings, or else the one built into the APK. */
+    var geminiApiKey: String?
+        get() = sp.getString(KEY_GEMINI_API_KEY, null)?.takeIf { it.isNotBlank() }
+            ?: BuildConfig.GEMINI_API_KEY.takeIf { it.isNotBlank() }
+        set(value) = sp.edit().putString(KEY_GEMINI_API_KEY, value?.trim()).apply()
+
+    /** Only the key typed on the phone (not the built-in one), for the settings field. */
+    val typedGeminiKey: String get() = sp.getString(KEY_GEMINI_API_KEY, null).orEmpty()
+    val typedGoogleKey: String get() = sp.getString(KEY_GOOGLE_API_KEY, null).orEmpty()
+
     private companion object {
+        const val KEY_GEMINI_API_KEY = "gemini_api_key"
         const val KEY_GOOGLE_API_KEY = "google_api_key"
         const val KEY_AUTO_READ = "auto_read"
         const val KEY_VENDOR_LANG = "vendor_lang"

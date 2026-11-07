@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bunyu.dich.R
+import com.bunyu.dich.engine.Engine
 
 /** A large button with an icon and one or two words. At least 72 dp tall, vibrates on tap. */
 @Composable
@@ -62,3 +63,13 @@ fun BackButton(onBack: () -> Unit, modifier: Modifier = Modifier) {
         container = Color(0xFF333333),
     )
 }
+
+/** Short label telling the family which engine produced a translation. */
+@Composable
+fun engineLabel(engine: Engine): String = stringResource(
+    when (engine) {
+        Engine.Gemini -> R.string.engine_gemini
+        Engine.GoogleCloud -> R.string.engine_cloud
+        Engine.Offline -> R.string.engine_offline
+    },
+)

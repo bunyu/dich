@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bunyu.dich.R
@@ -61,8 +62,10 @@ fun SettingsScreen(onBack: () -> Unit) {
     var models by remember { mutableStateOf<Set<Lang>>(emptySet()) }
     var downloading by remember { mutableStateOf(false) }
     var autoRead by remember { mutableStateOf(prefs.autoRead) }
-    var apiKey by remember { mutableStateOf(prefs.googleApiKey.orEmpty()) }
+    var apiKey by remember { mutableStateOf(prefs.typedGoogleKey) }
+    var geminiKey by remember { mutableStateOf(prefs.typedGeminiKey) }
     var keyTest by remember { mutableStateOf<String?>(null) }
+    val lastOnlineError = remember { app.translator.lastOnlineError }
     val testOk = stringResource(R.string.online_test_ok)
     val testFail = stringResource(R.string.online_test_fail)
     val canListen = remember { app.listener.isAvailable() }
@@ -169,6 +172,42 @@ fun SettingsScreen(onBack: () -> Unit) {
 
         Section(stringResource(R.string.online_section))
         Text(stringResource(R.string.online_hint), style = MaterialTheme.typography.bodyMedium)
+        Text(
+            stringResource(
+                if (prefs.geminiApiKey.isNullOrBlank() && prefs.googleApiKey.isNullOrBlank()) R.string.online_status_none
+                else R.string.online_status_ready,
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+        )
+        OutlinedTextField(
+            value = geminiKey,
+            onValueChange = {
+                geminiKey = it.trim()
+                prefs.geminiApiKey = geminiKey
+                keyTest = null
+            },
+            label = { Text(stringResource(R.string.gemini_key)) },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedButton(
+            enabled = !prefs.geminiApiKey.isNullOrBlank(),
+            onClick = {
+                keyTest = "…"
+                scope.launch {
+                    keyTest = try {
+                        val vi = app.geminiTranslator.translateAll(listOf("Bonjour, ça va ?"), Lang.FR, Lang.VI)
+                        "$testOk ${vi.first()}"
+                    } catch (e: Exception) {
+                        "$testFail ${e.message.orEmpty().take(200)}"
+                    }
+                }
+            },
+        ) {
+            Text(stringResource(R.string.gemini_test), style = MaterialTheme.typography.bodyMedium)
+        }
         OutlinedTextField(
             value = apiKey,
             onValueChange = {
@@ -182,7 +221,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedButton(
-            enabled = apiKey.isNotBlank(),
+            enabled = !prefs.googleApiKey.isNullOrBlank(),
             onClick = {
                 keyTest = "…"
                 scope.launch {
@@ -196,6 +235,9 @@ fun SettingsScreen(onBack: () -> Unit) {
             },
         ) {
             Text(stringResource(R.string.online_test), style = MaterialTheme.typography.bodyMedium)
+        }
+        lastOnlineError?.let {
+            Text(stringResource(R.string.online_last_error) + " " + it, style = MaterialTheme.typography.bodySmall)
         }
         keyTest?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
 

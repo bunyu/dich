@@ -27,7 +27,8 @@
     <string name="retake">Chụp lại</string>
     <string name="show_original">Xem chữ gốc</string>
     <string name="hide_original">Ẩn chữ gốc</string>
-    <string name="engine_online">trực tuyến</string>
+    <string name="engine_gemini">trực tuyến · Gemini</string>
+    <string name="engine_cloud">trực tuyến · Google</string>
     <string name="engine_offline">ngoại tuyến</string>
     <string name="translated_from">Dịch từ %1$s</string>
 
@@ -37,7 +38,7 @@
 
     <string name="talk_intro">Bấm nút xanh rồi nói. Người bán bấm nút phía bên kia.</string>
     <string name="talk_press">Bấm để nói</string>
-    <string name="talk_listening">Đang nghe… bấm để xong</string>
+    <string name="talk_listening">Nói xong thì bấm</string>
     <string name="talk_replay">Nghe lại</string>
     <string name="talk_they_said">Người kia nói:</string>
     <string name="talk_you_said">Bạn nói:</string>
@@ -69,8 +70,13 @@
     <string name="speech_rate">Tốc độ đọc</string>
     <string name="text_size">Cỡ chữ</string>
     <string name="text_size_sample">Chữ mẫu</string>
-    <string name="online_section">Dịch trực tuyến (Google)</string>
-    <string name="online_hint">Khi có mạng và có khoá API, ứng dụng dùng Google Cloud Translation (tốt hơn nhiều). Không có mạng thì tự dùng bản ngoại tuyến.</string>
+    <string name="online_section">Dịch trực tuyến (tốt hơn nhiều)</string>
+    <string name="online_hint">Khi có mạng và có khoá API, ứng dụng dịch bằng Gemini (ưu tiên) hoặc Google Cloud Translation. Không có mạng thì tự dùng bản ngoại tuyến. Chỉ cần một trong hai khoá.</string>
+    <string name="gemini_key">Khoá API Gemini (aistudio.google.com)</string>
+    <string name="gemini_test">Thử Gemini</string>
+    <string name="online_status_none">Chưa có khoá: đang dịch ngoại tuyến.</string>
+    <string name="online_status_ready">Đã có khoá: dịch trực tuyến khi có mạng.</string>
+    <string name="online_last_error">Lỗi trực tuyến lần trước:</string>
     <string name="online_key">Khoá API Google Cloud</string>
     <string name="online_test">Thử dịch trực tuyến</string>
     <string name="online_test_ok">Được:</string>

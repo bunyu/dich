@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -49,6 +50,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -106,7 +108,7 @@ fun TalkScreen(onBack: () -> Unit, vm: TalkViewModel = viewModel()) {
             onMic = { if (hasMic) vm.onMic(Side.Her) else askMic.launch(Manifest.permission.RECORD_AUDIO) },
             onReplay = { vm.replay(Side.Her) },
             onPhrase = vm::onPhrase,
-            modifier = Modifier.weight(1.25f),
+            modifier = Modifier.weight(1.6f),
         )
     }
 }
@@ -181,7 +183,7 @@ private fun HerHalf(
         if (price != null) {
             Text(
                 price,
-                fontSize = 56.sp,
+                fontSize = 44.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -193,7 +195,7 @@ private fun HerHalf(
                 Side.Vendor -> stringResource(R.string.talk_they_said)
                 Side.Her -> stringResource(R.string.talk_you_said)
                 null -> null
-            },
+            }?.let { label -> last?.engine?.let { "$label  ·  ${engineLabel(it)}" } ?: label },
             text = when {
                 listening && ui.partial.isNotEmpty() -> ui.partial
                 last == null -> stringResource(if (hasMic) R.string.talk_intro else R.string.mic_permission)
@@ -204,7 +206,7 @@ private fun HerHalf(
         )
         PhraseRow(onPhrase)
         Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             MicButton(
                 text = stringResource(if (listening) R.string.talk_listening else R.string.talk_press),
                 listening = listening,
@@ -213,12 +215,7 @@ private fun HerHalf(
                 modifier = Modifier.weight(1f),
             )
             if (last != null) {
-                BigButton(
-                    text = stringResource(R.string.talk_replay),
-                    icon = Icons.AutoMirrored.Filled.VolumeUp,
-                    onClick = onReplay,
-                    modifier = Modifier.heightIn(min = 96.dp),
-                )
+                ReplayButton(onReplay)
             }
         }
     }
@@ -274,9 +271,10 @@ private fun PhraseRow(onPhrase: (Phrase) -> Unit) {
                     containerColor = if (isSelected) Color(0xFF333333) else Color.White,
                     contentColor = if (isSelected) Color.White else Color.Black,
                 ),
-                modifier = Modifier.heightIn(min = 52.dp),
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
+                modifier = Modifier.heightIn(min = 44.dp),
             ) {
-                Text(category.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(category.name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -291,9 +289,9 @@ private fun PhraseRow(onPhrase: (Phrase) -> Unit) {
                     onPhrase(phrase)
                 },
                 shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.heightIn(min = 64.dp),
+                modifier = Modifier.heightIn(min = 56.dp),
             ) {
-                Text(phrase.vi, fontSize = 22.sp, color = Color.Black)
+                Text(phrase.vi, fontSize = 20.sp, color = Color.Black)
             }
         }
     }
@@ -318,14 +316,48 @@ private fun MicButton(
             containerColor = if (listening) Recording else color,
             contentColor = Color.White,
         ),
-        modifier = modifier.fillMaxWidth().heightIn(min = 96.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+        modifier = modifier.fillMaxWidth().heightIn(min = 84.dp),
     ) {
         androidx.compose.material3.Icon(
             if (listening) Icons.Filled.Stop else Icons.Filled.Mic,
             contentDescription = null,
-            modifier = Modifier.padding(end = 8.dp).width(40.dp).height(40.dp),
+            modifier = Modifier.padding(end = 6.dp).width(34.dp).height(34.dp),
         )
-        Text(text, fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        // One line only: the label must never wrap into a tall, hard-to-read block.
+        Text(
+            text,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/** Compact "listen again" button next to the microphone: icon with a short label under it. */
+@Composable
+private fun ReplayButton(onClick: () -> Unit) {
+    val haptic = LocalHapticFeedback.current
+    Button(
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick()
+        },
+        shape = RoundedCornerShape(24.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Blue, contentColor = Color.White),
+        contentPadding = PaddingValues(4.dp),
+        modifier = Modifier.width(96.dp).heightIn(min = 84.dp),
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            androidx.compose.material3.Icon(
+                Icons.AutoMirrored.Filled.VolumeUp,
+                contentDescription = null,
+                modifier = Modifier.width(32.dp).height(32.dp),
+            )
+            Text(stringResource(R.string.talk_replay), fontSize = 15.sp, maxLines = 1, softWrap = false)
+        }
     }
 }
 

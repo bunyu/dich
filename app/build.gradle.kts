@@ -28,6 +28,9 @@ android {
         // When set, the APK uses Google online translation without typing the key on the phone.
         val googleKey = localProps.getProperty("google.translate.apiKey").orEmpty().trim()
         buildConfigField("String", "GOOGLE_API_KEY", "\"$googleKey\"")
+        // Optional Gemini key from Google AI Studio (free tier):  gemini.apiKey=AIza...
+        val geminiKey = localProps.getProperty("gemini.apiKey").orEmpty().trim()
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
     }
 
     // One fixed signing key, so a new APK installs over the old one without uninstalling.

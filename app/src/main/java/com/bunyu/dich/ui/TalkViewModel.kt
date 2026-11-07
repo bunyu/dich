@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bunyu.dich.dichApp
+import com.bunyu.dich.engine.Engine
 import com.bunyu.dich.engine.Lang
 import com.bunyu.dich.engine.ListenError
 import kotlinx.coroutines.launch
@@ -14,7 +15,13 @@ import kotlinx.coroutines.launch
 enum class Side { Her, Vendor }
 
 /** One turn of the conversation: who spoke, what was heard, and its translation. */
-data class Turn(val speaker: Side, val heard: String, val translated: String) {
+data class Turn(
+    val speaker: Side,
+    val heard: String,
+    val translated: String,
+    /** Engine that translated it; null for ready-made phrases. */
+    val engine: Engine? = null,
+) {
     /** The Vietnamese side of this turn. */
     val vietnamese: String get() = if (speaker == Side.Her) heard else translated
 
@@ -89,7 +96,7 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
                 ui = withStatus(side, Status.Failed(ListenError.NeedsInternet))
                 return@launch
             }
-            show(Turn(side, heard, translated))
+            show(Turn(side, heard, translated, app.translator.lastEngine))
         }
     }
 
@@ -133,6 +140,7 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() {
         stopAll()
+        app.listener.release()
     }
 
     companion object {

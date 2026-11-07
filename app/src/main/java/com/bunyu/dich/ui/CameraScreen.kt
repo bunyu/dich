@@ -79,7 +79,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bunyu.dich.R
 import com.bunyu.dich.dichApp
-import com.bunyu.dich.engine.Engine
 import com.bunyu.dich.ui.theme.Green
 import kotlin.math.max
 import kotlin.math.min
@@ -273,7 +272,7 @@ private fun Result(
         Spacer(Modifier.height(8.dp))
         Text(
             stringResource(R.string.translated_from, stringResource(state.from.label)) + "  ·  " +
-                stringResource(if (state.engine == Engine.Online) R.string.engine_online else R.string.engine_offline),
+                engineLabel(state.engine),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
         )

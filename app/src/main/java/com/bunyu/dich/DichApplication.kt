@@ -2,6 +2,7 @@ package com.bunyu.dich
 
 import android.app.Application
 import android.content.Context
+import com.bunyu.dich.engine.GeminiTranslator
 import com.bunyu.dich.engine.GoogleCloudTranslator
 import com.bunyu.dich.engine.History
 import com.bunyu.dich.engine.HybridTranslator
@@ -17,7 +18,8 @@ class DichApplication : Application() {
     val speaker by lazy { Speaker(this, prefs) }
     val offlineTranslator by lazy { OnDeviceTranslator() }
     val onlineTranslator by lazy { GoogleCloudTranslator(this) { prefs.googleApiKey } }
-    val translator by lazy { HybridTranslator(this, onlineTranslator, offlineTranslator) }
+    val geminiTranslator by lazy { GeminiTranslator { prefs.geminiApiKey } }
+    val translator by lazy { HybridTranslator(this, geminiTranslator, onlineTranslator, offlineTranslator) }
     val textReader by lazy { TextReader() }
     val languageGuesser by lazy { LanguageGuesser() }
     val listener by lazy { Listener(this) }
