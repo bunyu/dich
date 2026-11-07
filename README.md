@@ -17,7 +17,7 @@ Status: milestone M1 (camera translation). Conversation mode comes in M2.
 
 ## Build the APK (Windows)
 
-Requirements: JDK 17 and the Android SDK (installing Android Studio gives you both).
+Requirements: JDK 17 to 25 and the Android SDK (installing Android Studio gives you both).
 
 ```bat
 cd D:\work\dich
