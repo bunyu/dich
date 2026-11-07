@@ -27,6 +27,11 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_AUTO_READ, true)
         set(value) = sp.edit().putBoolean(KEY_AUTO_READ, value).apply()
 
+    /** In conversation mode, say the other person's words (spoken or a tapped answer) aloud in Vietnamese. */
+    var speakVendor: Boolean
+        get() = sp.getBoolean(KEY_SPEAK_VENDOR, true)
+        set(value) = sp.edit().putBoolean(KEY_SPEAK_VENDOR, value).apply()
+
     /** In conversation mode, say her words (spoken or a chosen phrase) aloud in the vendor's language. */
     var speakPhrases: Boolean
         get() = sp.getBoolean(KEY_SPEAK_PHRASES, true)
@@ -61,6 +66,7 @@ class Prefs(context: Context) {
         const val KEY_GOOGLE_API_KEY = "google_api_key"
         const val KEY_AUTO_READ = "auto_read"
         const val KEY_SPEAK_PHRASES = "speak_phrases"
+        const val KEY_SPEAK_VENDOR = "speak_vendor"
         const val KEY_VENDOR_LANG = "vendor_lang"
         const val KEY_VOICE = "voice"
         const val KEY_TEXT_SIZE = "text_size"

@@ -61,8 +61,10 @@
     <string name="voice_missing">Chưa có giọng đọc tiếng Việt. Hãy tải giọng tiếng Việt trong cài đặt Android.</string>
     <string name="open_tts_settings">Mở cài đặt giọng đọc</string>
     <string name="engine_in_use">Bộ đọc đang dùng: %1$s</string>
-    <string name="auto_read">Tự động đọc to</string>
-    <string name="auto_read_hint">Tắt: chỉ đọc khi bấm nút Đọc to / Nghe lại.</string>
+    <string name="auto_read">Tự động đọc to (Đọc chữ)</string>
+    <string name="auto_read_hint">Tắt: sau khi chụp chữ, chỉ đọc khi bấm nút Đọc to.</string>
+    <string name="speak_vendor">Tự đọc tiếng Việt cho bà nghe</string>
+    <string name="speak_vendor_hint">Bật: trong phần Nói chuyện, khi người đối diện nói hoặc chọn câu trả lời mẫu, app đọc câu đã dịch bằng tiếng Việt.</string>
     <string name="speak_phrases">Tự đọc câu của bà cho người đối diện</string>
     <string name="speak_phrases_hint">Bật: trong phần Nói chuyện, khi bà nói hoặc chọn câu mẫu, app đọc câu đã dịch bằng tiếng Pháp/Anh.</string>
     <string name="speech_section">Nhận dạng giọng nói</string>

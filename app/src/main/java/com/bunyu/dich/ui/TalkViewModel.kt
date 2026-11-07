@@ -75,10 +75,11 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
             },
             onError = { error ->
                 ui = withStatus(side, Status.Failed(error)).copy(listening = null, partial = "")
-                if (app.prefs.autoRead && error == ListenError.NotHeard) {
+                // The "not heard" prompt goes to whoever just spoke, in their language.
+                if (error == ListenError.NotHeard) {
                     if (side == Side.Her) {
-                        app.speaker.speak(HER_NOT_HEARD, Lang.VI)
-                    } else {
+                        if (app.prefs.speakVendor) app.speaker.speak(HER_NOT_HEARD, Lang.VI)
+                    } else if (app.prefs.speakPhrases) {
                         app.speaker.speak(VendorText.NOT_HEARD.of(ui.vendorLang), ui.vendorLang)
                     }
                 }
@@ -97,7 +98,7 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
                 return@launch
             }
             // What she says is meant for the other person: the "say it to them" switch decides.
-            val speak = if (side == Side.Her) app.prefs.speakPhrases else app.prefs.autoRead
+            val speak = if (side == Side.Her) app.prefs.speakPhrases else app.prefs.speakVendor
             show(Turn(side, heard, translated, app.translator.lastEngine), speak = speak)
         }
     }
@@ -110,7 +111,13 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
         show(Turn(Side.Her, phrase.vi, phrase.text.of(ui.vendorLang)), speak = app.prefs.speakPhrases)
     }
 
-    private fun show(turn: Turn, speak: Boolean = app.prefs.autoRead) {
+    /** A ready-made answer tapped by the other person: she hears it in Vietnamese. */
+    fun onVendorReply(reply: Phrase) {
+        app.listener.cancel()
+        show(Turn(Side.Vendor, reply.text.of(ui.vendorLang), reply.vi), speak = app.prefs.speakVendor)
+    }
+
+    private fun show(turn: Turn, speak: Boolean) {
         ui = ui.copy(last = turn, listening = null, partial = "", herStatus = null, vendorStatus = null)
         app.history.add(turn.vietnamese, turn.foreign, ui.vendorLang)
         if (speak) {

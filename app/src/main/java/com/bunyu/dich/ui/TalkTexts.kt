@@ -67,6 +67,25 @@ val PhraseCategories = listOf(
     ),
 )
 
+/** Ready-made answers the other person can tap; she hears the Vietnamese. Translated by hand. */
+val VendorReplies = listOf(
+    Phrase("Vâng, có.", VendorText("Oui.", "Yes.")),
+    Phrase("Không.", VendorText("Non.", "No.")),
+    Phrase("Bà muốn lấy bao nhiêu?", VendorText("Vous en voulez combien ?", "How many would you like?")),
+    Phrase("Giá này tính theo ký.", VendorText("C'est le prix au kilo.", "That's the price per kilo.")),
+    Phrase("Hết hàng rồi.", VendorText("Il n'y en a plus.", "It's sold out.")),
+    Phrase("Bà còn cần gì nữa không?", VendorText("Autre chose ?", "Anything else?")),
+    Phrase("Bà trả bằng thẻ hay tiền mặt?", VendorText("Carte ou espèces ?", "Card or cash?")),
+    Phrase("Chỉ nhận tiền mặt.", VendorText("Espèces seulement.", "Cash only.")),
+    Phrase("Đây là tiền thối lại của bà.", VendorText("Voici votre monnaie.", "Here is your change.")),
+    Phrase("Xin bà đợi một chút.", VendorText("Un instant, s'il vous plaît.", "One moment, please.")),
+    Phrase("Đi thẳng.", VendorText("Tout droit.", "Straight ahead.")),
+    Phrase("Rẽ phải.", VendorText("À droite.", "On the right.")),
+    Phrase("Rẽ trái.", VendorText("À gauche.", "On the left.")),
+    Phrase("Ở đằng này, bà đi theo tôi.", VendorText("C'est par ici, suivez-moi.", "It's this way, follow me.")),
+    Phrase("Cảm ơn bà, tạm biệt!", VendorText("Merci, au revoir !", "Thank you, goodbye!")),
+)
+
 /** Finds a price like "3,50 €", "3 euros 50" or "3.50€" and formats it as "3,50 €". */
 fun findPrice(text: String): String? {
     val match = Regex("""(\d+)(?:[.,](\d{1,2}))?\s*(?:€|euros?)(?:\s*(\d{1,2})\b)?""", RegexOption.IGNORE_CASE)

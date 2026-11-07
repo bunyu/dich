@@ -93,6 +93,7 @@ fun TalkScreen(onBack: () -> Unit, vm: TalkViewModel = viewModel()) {
             onMic = { if (hasMic) vm.onMic(Side.Vendor) else askMic.launch(Manifest.permission.RECORD_AUDIO) },
             onRepeat = { vm.replay(Side.Vendor) },
             onToggleLang = vm::toggleVendorLang,
+            onReply = vm::onVendorReply,
             modifier = Modifier.weight(1f).rotate(180f),
         )
         Row(
@@ -120,8 +121,10 @@ private fun VendorHalf(
     onMic: () -> Unit,
     onRepeat: () -> Unit,
     onToggleLang: () -> Unit,
+    onReply: (Phrase) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val haptic = LocalHapticFeedback.current
     val lang = ui.vendorLang
     val listening = ui.listening == Side.Vendor
     Column(modifier.fillMaxWidth().background(VendorBg).padding(12.dp)) {
@@ -146,6 +149,24 @@ private fun VendorHalf(
             status = ui.vendorStatus?.let { vendorStatusText(it, lang) },
             textSize = textSize * 0.9f,
         )
+        // Ready-made answers for the other person; she hears them in Vietnamese.
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            VendorReplies.forEach { reply ->
+                OutlinedButton(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onReply(reply)
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.heightIn(min = 52.dp),
+                ) {
+                    Text(reply.text.of(lang), fontSize = 18.sp, color = Color.Black)
+                }
+            }
+        }
         MicButton(
             text = if (listening) VendorText.LISTENING.of(lang) else VendorText.TAP_TO_SPEAK.of(lang),
             listening = listening,
