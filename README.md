@@ -53,13 +53,38 @@ The key is stored only on the phone, never in this repository. The result screen
 
 Requirements: JDK 17 to 25 and the Android SDK (installing Android Studio gives you both).
 
+### Signing key (once)
+
+Android only installs a new version over the old one when both are signed with the same key.
+Create one key on the build PC, keep it outside the repo, and back it up (if it is lost, the app
+must be uninstalled once before the next install):
+
 ```bat
-cd D:\work\dich
-gradlew.bat assembleDebug
+mkdir D:\work\dich-keys
+"D:\AndroidStudio\jbr\bin\keytool" -genkeypair -v -keystore D:\work\dich-keys\dich-release.jks ^
+  -alias dich -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Dich"
 ```
 
-The APK is written to `app\build\outputs\apk\debug\app-debug.apk`. GitHub Actions also builds it
-on every push (see the "Build APK" workflow artifacts).
+Then add to `D:\work\dich\local.properties` (never committed):
+
+```properties
+dich.storeFile=D:/work/dich-keys/dich-release.jks
+dich.storePassword=...
+dich.keyAlias=dich
+dich.keyPassword=...
+```
+
+### Build
+
+```bat
+cd D:\work\dich
+gradlew.bat assembleRelease
+```
+
+Install `app\build\outputs\apk\release\app-release.apk` on her phone. It only contains the
+64-bit ARM code her Redmi Note 14 needs, so it is much smaller than the debug APK. Always install
+APKs built on this PC: the GitHub Actions builds are signed with a different key and will not
+install over it.
 
 ## One-time setup on her phone (Redmi Note 14)
 

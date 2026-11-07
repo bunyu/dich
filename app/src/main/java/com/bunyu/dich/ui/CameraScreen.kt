@@ -17,6 +17,12 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import com.bunyu.dich.engine.PlayState
+import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -99,7 +105,7 @@ fun CameraScreen(onBack: () -> Unit, vm: CameraViewModel = viewModel()) {
     when (val s = vm.state) {
         CameraState.Aiming -> Aiming(onPhoto = vm::onPhoto, onError = vm::onCaptureError, onBack = onBack)
         is CameraState.Working -> Working(s, onBack = onBack)
-        is CameraState.Done -> Result(s, onReadAloud = vm::readAloud, onRetake = vm::reset, onBack = onBack)
+        is CameraState.Done -> Result(s, vm = vm, onBack = onBack)
         is CameraState.Failed -> Failed(s, onRetake = vm::reset, onBack = onBack)
     }
 }
@@ -243,26 +249,28 @@ private fun Working(state: CameraState.Working, onBack: () -> Unit) {
 @Composable
 private fun Result(
     state: CameraState.Done,
-    onReadAloud: () -> Unit,
-    onRetake: () -> Unit,
+    vm: CameraViewModel,
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
+    val speaker = context.dichApp.speaker
     val textSize = remember { context.dichApp.prefs.textSizeSp }
     var showOriginal by remember { mutableStateOf(false) }
+    val playing = speaker.playState
+    val current = if (playing == PlayState.Idle) -1 else speaker.segmentIndex
 
     Column(Modifier.fillMaxSize().systemBarsPadding().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             BackButton(onBack)
             Spacer(Modifier.weight(1f))
-            Image(
-                bitmap = state.photo.asImageBitmap(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(72.dp).clip(RoundedCornerShape(12.dp)),
+            BigButton(
+                text = stringResource(R.string.retake),
+                icon = Icons.Filled.CameraAlt,
+                onClick = vm::reset,
+                container = Green,
             )
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
         Text(
             stringResource(R.string.translated_from, stringResource(state.from.label)) + "  ·  " +
                 stringResource(if (state.engine == Engine.Online) R.string.engine_online else R.string.engine_offline),
@@ -274,13 +282,22 @@ private fun Result(
             shape = RoundedCornerShape(20.dp),
             modifier = Modifier.fillMaxWidth().weight(1f).padding(vertical = 8.dp),
         ) {
-            Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
-                Text(
-                    state.vietnamese,
-                    fontSize = textSize.sp,
-                    lineHeight = (textSize * 1.35f).sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(8.dp)) {
+                // Each paragraph is tappable (read from here) and highlighted while it is read.
+                state.blocks.forEachIndexed { i, block ->
+                    Text(
+                        block.vietnamese,
+                        fontSize = textSize.sp,
+                        lineHeight = (textSize * 1.35f).sp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(if (i == current) Highlight else Color.Transparent)
+                            .clickable { vm.readAloud(from = i) }
+                            .padding(8.dp),
+                    )
+                }
                 if (showOriginal) {
                     Spacer(Modifier.height(24.dp))
                     Text(state.original, style = MaterialTheme.typography.bodyMedium, color = Color.DarkGray)
@@ -293,22 +310,48 @@ private fun Result(
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
-        BigButton(
-            text = stringResource(R.string.read_aloud),
-            icon = Icons.AutoMirrored.Filled.VolumeUp,
-            onClick = onReadAloud,
-            modifier = Modifier.fillMaxWidth().height(88.dp),
-        )
-        Spacer(Modifier.height(12.dp))
-        BigButton(
-            text = stringResource(R.string.retake),
-            icon = Icons.Filled.CameraAlt,
-            onClick = onRetake,
-            container = Green,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        when (playing) {
+            PlayState.Playing -> BigButton(
+                text = stringResource(R.string.pause),
+                icon = Icons.Filled.Pause,
+                onClick = vm::pause,
+                container = Color(0xFFB26A00),
+                modifier = Modifier.fillMaxWidth().height(88.dp),
+            )
+            PlayState.Paused -> BigButton(
+                text = stringResource(R.string.resume),
+                icon = Icons.Filled.PlayArrow,
+                onClick = vm::resume,
+                modifier = Modifier.fillMaxWidth().height(88.dp),
+            )
+            PlayState.Idle -> BigButton(
+                text = stringResource(R.string.read_aloud),
+                icon = Icons.AutoMirrored.Filled.VolumeUp,
+                onClick = { vm.readAloud() },
+                modifier = Modifier.fillMaxWidth().height(88.dp),
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            BigButton(
+                text = stringResource(R.string.replay),
+                icon = Icons.Filled.Replay,
+                onClick = vm::replay,
+                container = Color(0xFF555555),
+                modifier = Modifier.weight(1f),
+            )
+            BigButton(
+                text = stringResource(R.string.stop_reading),
+                icon = Icons.AutoMirrored.Filled.VolumeOff,
+                onClick = vm::stopReading,
+                container = Color(0xFF555555),
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
+
+private val Highlight = Color(0xFFFFE082)
 
 @Composable
 private fun Failed(state: CameraState.Failed, onRetake: () -> Unit, onBack: () -> Unit) {

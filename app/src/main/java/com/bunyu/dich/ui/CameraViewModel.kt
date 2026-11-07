@@ -77,15 +77,23 @@ class CameraViewModel(application: Application) : AndroidViewModel(application) 
             val done = CameraState.Done(photo, from, blocks, app.translator.lastEngine)
             state = done
             app.history.add(done.vietnamese, done.original, from)
-            if (app.prefs.autoRead) app.speaker.speak(done.vietnamese)
+            if (app.prefs.autoRead) readAloud()
         }
     }
 
     fun onCaptureError() = fail(R.string.capture_error)
 
-    fun readAloud() {
-        (state as? CameraState.Done)?.let { app.speaker.speak(it.vietnamese) }
+    /** Reads the translation block by block, starting at [from]. */
+    fun readAloud(from: Int = 0) {
+        (state as? CameraState.Done)?.let { done ->
+            app.speaker.play(done.blocks.map { it.vietnamese }, Lang.VI, from)
+        }
     }
+
+    fun pause() = app.speaker.pause()
+    fun resume() = app.speaker.resume()
+    fun replay() = readAloud(0)
+    fun stopReading() = app.speaker.stop()
 
     fun reset() {
         job?.cancel()

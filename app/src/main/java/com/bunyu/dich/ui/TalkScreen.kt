@@ -37,6 +37,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -254,14 +256,35 @@ private fun ColumnScope.BigText(label: String?, text: String, status: String?, t
     }
 }
 
+/** Category tabs ("Đi chợ", "Tham quan") above a scrolling row of phrase buttons. */
 @Composable
 private fun PhraseRow(onPhrase: (Phrase) -> Unit) {
     val haptic = LocalHapticFeedback.current
+    var selected by rememberSaveable { mutableIntStateOf(0) }
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 6.dp)) {
+        PhraseCategories.forEachIndexed { i, category ->
+            val isSelected = i == selected
+            Button(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    selected = i
+                },
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isSelected) Color(0xFF333333) else Color.White,
+                    contentColor = if (isSelected) Color.White else Color.Black,
+                ),
+                modifier = Modifier.heightIn(min = 52.dp),
+            ) {
+                Text(category.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
     Row(
         Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        MarketPhrases.forEach { phrase ->
+        PhraseCategories[selected].phrases.forEach { phrase ->
             OutlinedButton(
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)

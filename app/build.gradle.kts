@@ -6,6 +6,12 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+// local.properties is never committed: it holds the SDK path, the optional Google key and the
+// signing key settings for this PC.
+val localProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+
 android {
     namespace = "com.bunyu.dich"
     compileSdk = 35
@@ -14,22 +20,42 @@ android {
         applicationId = "com.bunyu.dich"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
 
         // Optional Google Cloud Translation key, read from local.properties (never committed):
         //   google.translate.apiKey=AIza...
         // When set, the APK uses Google online translation without typing the key on the phone.
-        val localProps = Properties().apply {
-            rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
-        }
         val googleKey = localProps.getProperty("google.translate.apiKey").orEmpty().trim()
         buildConfigField("String", "GOOGLE_API_KEY", "\"$googleKey\"")
+    }
+
+    // One fixed signing key, so a new APK installs over the old one without uninstalling.
+    // The keystore lives outside the repo; its path and passwords go in local.properties:
+    //   dich.storeFile=D:/work/dich-keys/dich-release.jks
+    //   dich.storePassword=...
+    //   dich.keyAlias=dich
+    //   dich.keyPassword=...
+    val storePath = localProps.getProperty("dich.storeFile")?.trim().orEmpty()
+    val hasReleaseKey = storePath.isNotEmpty() && file(storePath).exists()
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("dich") {
+                storeFile = file(storePath)
+                storePassword = localProps.getProperty("dich.storePassword")
+                keyAlias = localProps.getProperty("dich.keyAlias")
+                keyPassword = localProps.getProperty("dich.keyPassword")
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            // Without the key (e.g. on GitHub Actions) release falls back to the debug key.
+            signingConfig = if (hasReleaseKey) signingConfigs.getByName("dich") else signingConfigs.getByName("debug")
+            // Her Redmi Note 14 is 64-bit ARM: leave out other CPU types to shrink the APK a lot.
+            ndk { abiFilters += "arm64-v8a" }
         }
     }
 

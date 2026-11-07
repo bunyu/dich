@@ -21,6 +21,9 @@
 
     <string name="read_aloud">Đọc to</string>
     <string name="stop_reading">Dừng đọc</string>
+    <string name="pause">Tạm dừng</string>
+    <string name="resume">Đọc tiếp</string>
+    <string name="replay">Đọc lại</string>
     <string name="retake">Chụp lại</string>
     <string name="show_original">Xem chữ gốc</string>
     <string name="hide_original">Ẩn chữ gốc</string>
