@@ -103,13 +103,17 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
     /** A ready-made phrase: no speech recognition or machine translation needed. */
     fun onPhrase(phrase: Phrase) {
         app.listener.cancel()
-        show(Turn(Side.Her, phrase.vi, phrase.text.of(ui.vendorLang)))
+        // A chosen phrase is meant for the other person: always say it aloud in their language,
+        // even when automatic read-aloud is turned off.
+        show(Turn(Side.Her, phrase.vi, phrase.text.of(ui.vendorLang)), forceSpeak = true)
     }
 
-    private fun show(turn: Turn) {
+    private fun show(turn: Turn, forceSpeak: Boolean = false) {
         ui = ui.copy(last = turn, listening = null, partial = "", herStatus = null, vendorStatus = null)
         app.history.add(turn.vietnamese, turn.foreign, ui.vendorLang)
-        if (app.prefs.autoRead) say(turn, toward = if (turn.speaker == Side.Her) Side.Vendor else Side.Her)
+        if (forceSpeak || app.prefs.autoRead) {
+            say(turn, toward = if (turn.speaker == Side.Her) Side.Vendor else Side.Her)
+        }
     }
 
     /** Replay the last sentence in the language of [side]. */
