@@ -103,15 +103,15 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
     /** A ready-made phrase: no speech recognition or machine translation needed. */
     fun onPhrase(phrase: Phrase) {
         app.listener.cancel()
-        // A chosen phrase is meant for the other person: always say it aloud in their language,
-        // even when automatic read-aloud is turned off.
-        show(Turn(Side.Her, phrase.vi, phrase.text.of(ui.vendorLang)), forceSpeak = true)
+        // A chosen phrase is meant for the other person: its own setting decides whether it is
+        // said aloud in their language, independently of the general read-aloud switch.
+        show(Turn(Side.Her, phrase.vi, phrase.text.of(ui.vendorLang)), speak = app.prefs.speakPhrases)
     }
 
-    private fun show(turn: Turn, forceSpeak: Boolean = false) {
+    private fun show(turn: Turn, speak: Boolean = app.prefs.autoRead) {
         ui = ui.copy(last = turn, listening = null, partial = "", herStatus = null, vendorStatus = null)
         app.history.add(turn.vietnamese, turn.foreign, ui.vendorLang)
-        if (forceSpeak || app.prefs.autoRead) {
+        if (speak) {
             say(turn, toward = if (turn.speaker == Side.Her) Side.Vendor else Side.Her)
         }
     }

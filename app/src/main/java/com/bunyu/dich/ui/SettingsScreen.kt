@@ -62,6 +62,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     var models by remember { mutableStateOf<Set<Lang>>(emptySet()) }
     var downloading by remember { mutableStateOf(false) }
     var autoRead by remember { mutableStateOf(prefs.autoRead) }
+    var speakPhrases by remember { mutableStateOf(prefs.speakPhrases) }
     var apiKey by remember { mutableStateOf(prefs.typedGoogleKey) }
     var geminiKey by remember { mutableStateOf(prefs.typedGeminiKey) }
     var keyTest by remember { mutableStateOf<String?>(null) }
@@ -105,6 +106,20 @@ fun SettingsScreen(onBack: () -> Unit) {
                     autoRead = it
                     prefs.autoRead = it
                     if (!it) speaker.stop()
+                },
+            )
+        }
+
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.speak_phrases), style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.speak_phrases_hint), style = MaterialTheme.typography.bodyMedium)
+            }
+            Switch(
+                checked = speakPhrases,
+                onCheckedChange = {
+                    speakPhrases = it
+                    prefs.speakPhrases = it
                 },
             )
         }

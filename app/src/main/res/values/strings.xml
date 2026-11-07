@@ -63,6 +63,8 @@
     <string name="engine_in_use">Bộ đọc đang dùng: %1$s</string>
     <string name="auto_read">Tự động đọc to</string>
     <string name="auto_read_hint">Tắt: chỉ đọc khi bấm nút Đọc to / Nghe lại.</string>
+    <string name="speak_phrases">Tự đọc câu mẫu cho người đối diện</string>
+    <string name="speak_phrases_hint">Bật: khi chọn một câu trong phần Nói chuyện, app đọc câu đó bằng tiếng Pháp/Anh.</string>
     <string name="speech_section">Nhận dạng giọng nói</string>
     <string name="speech_ready">Có sẵn trên máy</string>
     <string name="speech_missing">Không có. Hãy cài ứng dụng Google.</string>
