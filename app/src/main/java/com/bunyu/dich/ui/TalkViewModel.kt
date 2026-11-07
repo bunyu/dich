@@ -96,7 +96,9 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
                 ui = withStatus(side, Status.Failed(ListenError.NeedsInternet))
                 return@launch
             }
-            show(Turn(side, heard, translated, app.translator.lastEngine))
+            // What she says is meant for the other person: the "say it to them" switch decides.
+            val speak = if (side == Side.Her) app.prefs.speakPhrases else app.prefs.autoRead
+            show(Turn(side, heard, translated, app.translator.lastEngine), speak = speak)
         }
     }
 

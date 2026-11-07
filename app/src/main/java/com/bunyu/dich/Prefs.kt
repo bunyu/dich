@@ -27,7 +27,7 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_AUTO_READ, true)
         set(value) = sp.edit().putBoolean(KEY_AUTO_READ, value).apply()
 
-    /** In conversation mode, say a chosen ready-made phrase aloud in the vendor's language. */
+    /** In conversation mode, say her words (spoken or a chosen phrase) aloud in the vendor's language. */
     var speakPhrases: Boolean
         get() = sp.getBoolean(KEY_SPEAK_PHRASES, true)
         set(value) = sp.edit().putBoolean(KEY_SPEAK_PHRASES, value).apply()
