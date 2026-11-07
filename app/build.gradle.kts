@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -14,6 +16,15 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+
+        // Optional Google Cloud Translation key, read from local.properties (never committed):
+        //   google.translate.apiKey=AIza...
+        // When set, the APK uses Google online translation without typing the key on the phone.
+        val localProps = Properties().apply {
+            rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+        }
+        val googleKey = localProps.getProperty("google.translate.apiKey").orEmpty().trim()
+        buildConfigField("String", "GOOGLE_API_KEY", "\"$googleKey\"")
     }
 
     buildTypes {
@@ -28,6 +39,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

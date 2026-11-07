@@ -32,9 +32,13 @@ class Prefs(context: Context) {
         get() = if (sp.getString(KEY_VENDOR_LANG, "fr") == "en") Lang.EN else Lang.FR
         set(value) = sp.edit().putString(KEY_VENDOR_LANG, if (value == Lang.EN) "en" else "fr").apply()
 
-    /** Google Cloud Translation API key. Empty means offline translation only. */
+    /**
+     * Google Cloud Translation API key typed in family settings, or else the one built into the APK
+     * from local.properties. Empty means offline translation only.
+     */
     var googleApiKey: String?
-        get() = sp.getString(KEY_GOOGLE_API_KEY, null)
+        get() = sp.getString(KEY_GOOGLE_API_KEY, null)?.takeIf { it.isNotBlank() }
+            ?: BuildConfig.GOOGLE_API_KEY.takeIf { it.isNotBlank() }
         set(value) = sp.edit().putString(KEY_GOOGLE_API_KEY, value?.trim()).apply()
 
     private companion object {

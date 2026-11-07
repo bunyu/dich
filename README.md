@@ -33,8 +33,18 @@ see [pricing](https://cloud.google.com/translate/pricing)), far more than one pe
 3. APIs & Services > Credentials > **Create credentials > API key**. Restrict it to the Cloud
    Translation API. Optionally restrict it to Android apps: package `com.bunyu.dich` and the
    SHA-1 of the signing key (`gradlew.bat signingReport`).
-4. On her phone: family settings > **Dịch trực tuyến (Google)** > paste the key > **Thử dịch
-   trực tuyến** to check it.
+4. Either build the key into the APK, so nothing has to be typed on the phone: add this line to
+   `local.properties` (next to `sdk.dir`; that file is never committed) and rebuild:
+
+   ```
+   google.translate.apiKey=AIza...your key...
+   ```
+
+   Or, on her phone: family settings > **Dịch trực tuyến (Google)** > paste the key. A key typed on
+   the phone takes priority over the built-in one. Press **Thử dịch trực tuyến** to check it.
+
+   A key built into the APK can be extracted from it, so restrict it to the Cloud Translation API
+   (and ideally to the app's package and SHA-1) and do not share the APK publicly.
 
 The key is stored only on the phone, never in this repository. The result screen shows
 "trực tuyến" or "ngoại tuyến" so you can tell which engine was used.
