@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -24,10 +25,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -67,8 +73,8 @@ private val HerBg = Color(0xFFEAF5EC)
 private val Recording = Color(0xFFC62828)
 
 /**
- * Split screen. The top half is upside down for the person standing opposite (French or English);
- * the bottom half is hers (Vietnamese).
+ * Split screen. The top half is upside down for the person standing opposite (French, English,
+ * Arabic, Japanese, Chinese or Korean); the bottom half is hers (Vietnamese).
  */
 @Composable
 fun TalkScreen(onBack: () -> Unit, vm: TalkViewModel = viewModel()) {
@@ -84,6 +90,7 @@ fun TalkScreen(onBack: () -> Unit, vm: TalkViewModel = viewModel()) {
     DisposableEffect(Unit) { onDispose { vm.stopAll() } }
 
     val textSize = remember { context.dichApp.prefs.textSizeSp }
+    val speaker = context.dichApp.speaker
     val ui = vm.ui
 
     Column(Modifier.fillMaxSize().systemBarsPadding()) {
@@ -92,7 +99,7 @@ fun TalkScreen(onBack: () -> Unit, vm: TalkViewModel = viewModel()) {
             textSize = textSize,
             onMic = { if (hasMic) vm.onMic(Side.Vendor) else askMic.launch(Manifest.permission.RECORD_AUDIO) },
             onRepeat = { vm.replay(Side.Vendor) },
-            onToggleLang = vm::toggleVendorLang,
+            onLang = vm::setVendorLang,
             onReply = vm::onVendorReply,
             modifier = Modifier.weight(1f).rotate(180f),
         )
@@ -101,6 +108,8 @@ fun TalkScreen(onBack: () -> Unit, vm: TalkViewModel = viewModel()) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             BackButton(onBack)
+            Spacer(Modifier.weight(1f))
+            HerLangPicker(ui.vendorLang, vm::setVendorLang)
         }
         HerHalf(
             ui = ui,
@@ -109,6 +118,7 @@ fun TalkScreen(onBack: () -> Unit, vm: TalkViewModel = viewModel()) {
             onMic = { if (hasMic) vm.onMic(Side.Her) else askMic.launch(Manifest.permission.RECORD_AUDIO) },
             onReplay = { vm.replay(Side.Her) },
             onPhrase = vm::onPhrase,
+            missingVoice = speaker.missingVoice,
             modifier = Modifier.weight(1.6f),
         )
     }
@@ -120,20 +130,21 @@ private fun VendorHalf(
     textSize: Float,
     onMic: () -> Unit,
     onRepeat: () -> Unit,
-    onToggleLang: () -> Unit,
+    onLang: (Lang) -> Unit,
     onReply: (Phrase) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val haptic = LocalHapticFeedback.current
     val lang = ui.vendorLang
     val listening = ui.listening == Side.Vendor
+    // The language list is shown inline (not as a popup) so it stays upside down with this half.
+    var choosingLang by rememberSaveable { mutableStateOf(false) }
     Column(modifier.fillMaxWidth().background(VendorBg).padding(12.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            OutlinedButton(onClick = onToggleLang) {
-                Text(
-                    if (lang == Lang.FR) "FR  ·  english?" else "EN  ·  français ?",
-                    fontSize = 18.sp,
-                )
+            OutlinedButton(onClick = { choosingLang = !choosingLang }) {
+                Icon(Icons.Filled.Language, contentDescription = null, modifier = Modifier.padding(end = 6.dp))
+                Text(lang.nativeName, fontSize = 18.sp)
+                Icon(Icons.Filled.ArrowDropDown, contentDescription = null)
             }
             if (ui.last != null) {
                 OutlinedButton(onClick = onRepeat) { Text(VendorText.REPEAT.of(lang), fontSize = 18.sp) }
@@ -149,21 +160,47 @@ private fun VendorHalf(
             status = ui.vendorStatus?.let { vendorStatusText(it, lang) },
             textSize = textSize * 0.9f,
         )
-        // Ready-made answers for the other person; she hears them in Vietnamese.
-        Row(
-            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            VendorReplies.forEach { reply ->
-                OutlinedButton(
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onReply(reply)
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.heightIn(min = 52.dp),
-                ) {
-                    Text(reply.text.of(lang), fontSize = 18.sp, color = Color.Black)
+        if (choosingLang) {
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Lang.others.forEach { option ->
+                    val selected = option == lang
+                    Button(
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            choosingLang = false
+                            onLang(option)
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (selected) Blue else Color.White,
+                            contentColor = if (selected) Color.White else Color.Black,
+                        ),
+                        modifier = Modifier.heightIn(min = 52.dp),
+                    ) {
+                        Text(option.nativeName, fontSize = 20.sp)
+                    }
+                }
+            }
+        } else {
+            // Ready-made answers for the other person; she hears them in Vietnamese.
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                VendorReplies.forEach { reply ->
+                    OutlinedButton(
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onReply(reply)
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.heightIn(min = 52.dp),
+                    ) {
+                        Text(reply.text.of(lang), fontSize = 18.sp, color = Color.Black)
+                    }
                 }
             }
         }
@@ -194,6 +231,7 @@ private fun HerHalf(
     onMic: () -> Unit,
     onReplay: () -> Unit,
     onPhrase: (Phrase) -> Unit,
+    missingVoice: Lang?,
     modifier: Modifier = Modifier,
 ) {
     val listening = ui.listening == Side.Her
@@ -222,7 +260,8 @@ private fun HerHalf(
                 last == null -> stringResource(if (hasMic) R.string.talk_intro else R.string.mic_permission)
                 else -> last.vietnamese
             },
-            status = ui.herStatus?.let { herStatusText(it) },
+            status = ui.herStatus?.let { herStatusText(it) }
+                ?: missingVoice?.let { stringResource(R.string.voice_missing_lang, stringResource(it.label)) },
             textSize = textSize,
         )
         PhraseRow(onPhrase)
@@ -237,6 +276,41 @@ private fun HerHalf(
             )
             if (last != null) {
                 ReplayButton(onReplay)
+            }
+        }
+    }
+}
+
+/** Her own language choice, in Vietnamese, in the bar between the two halves. */
+@Composable
+private fun HerLangPicker(current: Lang, onLang: (Lang) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        Button(
+            onClick = { open = true },
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
+            modifier = Modifier.heightIn(min = 48.dp),
+        ) {
+            Text(stringResource(R.string.talk_other_lang, stringResource(current.label)), fontSize = 18.sp)
+            Icon(Icons.Filled.ArrowDropDown, contentDescription = null)
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            Lang.others.forEach { lang ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            "${stringResource(lang.label)}  ·  ${lang.nativeName}",
+                            fontSize = 22.sp,
+                            fontWeight = if (lang == current) FontWeight.Bold else FontWeight.Normal,
+                        )
+                    },
+                    onClick = {
+                        open = false
+                        onLang(lang)
+                    },
+                    modifier = Modifier.heightIn(min = 56.dp),
+                )
             }
         }
     }
@@ -340,7 +414,7 @@ private fun MicButton(
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
         modifier = modifier.fillMaxWidth().heightIn(min = 84.dp),
     ) {
-        androidx.compose.material3.Icon(
+        Icon(
             if (listening) Icons.Filled.Stop else Icons.Filled.Mic,
             contentDescription = null,
             modifier = Modifier.padding(end = 6.dp).width(34.dp).height(34.dp),
@@ -372,7 +446,7 @@ private fun ReplayButton(onClick: () -> Unit) {
         modifier = Modifier.width(96.dp).heightIn(min = 84.dp),
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            androidx.compose.material3.Icon(
+            Icon(
                 Icons.AutoMirrored.Filled.VolumeUp,
                 contentDescription = null,
                 modifier = Modifier.width(32.dp).height(32.dp),

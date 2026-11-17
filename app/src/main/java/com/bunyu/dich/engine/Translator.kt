@@ -49,12 +49,10 @@ class OnDeviceTranslator : TextTranslator {
         return Lang.entries.filter { it == Lang.EN || it.code in codes }.toSet()
     }
 
-    /** Downloads every model the app needs (French, English, Vietnamese). */
+    /** Downloads every model the app needs (Vietnamese and each other language). */
     suspend fun ensureModels() {
         val conditions = DownloadConditions.Builder().build()
-        client(Lang.FR, Lang.VI).downloadModelIfNeeded(conditions).await()
-        client(Lang.EN, Lang.VI).downloadModelIfNeeded(conditions).await()
-        client(Lang.VI, Lang.FR).downloadModelIfNeeded(conditions).await()
-        client(Lang.VI, Lang.EN).downloadModelIfNeeded(conditions).await()
+        // A pair's client downloads both of its language models.
+        Lang.others.forEach { client(it, Lang.VI).downloadModelIfNeeded(conditions).await() }
     }
 }

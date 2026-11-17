@@ -51,6 +51,12 @@
     <string name="lang_fr">tiếng Pháp</string>
     <string name="lang_en">tiếng Anh</string>
     <string name="lang_vi">tiếng Việt</string>
+    <string name="lang_ar">tiếng Ả Rập (Ma-rốc)</string>
+    <string name="lang_ja">tiếng Nhật</string>
+    <string name="lang_zh">tiếng Trung</string>
+    <string name="lang_ko">tiếng Hàn</string>
+    <string name="talk_other_lang">Người kia nói %1$s</string>
+    <string name="voice_missing_lang">Máy chưa có giọng đọc %1$s nên không đọc to được. Người nhà: vào cài đặt giọng đọc của Android để tải giọng này.</string>
 
     <!-- Settings: hidden behind a 3 second press, meant for family. -->
     <string name="settings_title">Cài đặt (cho người nhà)</string>
@@ -66,7 +72,7 @@
     <string name="speak_vendor">Tự đọc tiếng Việt cho bà nghe</string>
     <string name="speak_vendor_hint">Bật: trong phần Nói chuyện, khi người đối diện nói hoặc chọn câu trả lời mẫu, app đọc câu đã dịch bằng tiếng Việt.</string>
     <string name="speak_phrases">Tự đọc câu của bà cho người đối diện</string>
-    <string name="speak_phrases_hint">Bật: trong phần Nói chuyện, khi bà nói hoặc chọn câu mẫu, app đọc câu đã dịch bằng tiếng Pháp/Anh.</string>
+    <string name="speak_phrases_hint">Bật: trong phần Nói chuyện, khi bà nói hoặc chọn câu mẫu, app đọc câu đã dịch bằng tiếng của người đối diện.</string>
     <string name="speech_section">Nhận dạng giọng nói</string>
     <string name="speech_ready">Có sẵn trên máy</string>
     <string name="speech_missing">Không có. Hãy cài ứng dụng Google.</string>

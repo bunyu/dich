@@ -272,7 +272,7 @@ fun SettingsScreen(onBack: () -> Unit) {
         keyTest?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
 
         Section(stringResource(R.string.models_section))
-        listOf(Lang.FR, Lang.EN, Lang.VI).forEach { lang ->
+        (listOf(Lang.VI) + Lang.others).forEach { lang ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(stringResource(lang.label), style = MaterialTheme.typography.bodyMedium)
                 Text(

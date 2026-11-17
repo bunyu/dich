@@ -43,6 +43,13 @@ class Speaker(context: Context, private val prefs: Prefs) {
     var segmentIndex by mutableIntStateOf(-1)
         private set
 
+    /**
+     * Language the phone could not read aloud last time (its voice is not installed), so a screen
+     * can say so instead of staying silent; null when the last reading worked.
+     */
+    var missingVoice by mutableStateOf<Lang?>(null)
+        private set
+
     /** Package name of the engine in use, shown in the family settings. */
     var engineName: String = "?"
         private set
@@ -121,8 +128,17 @@ class Speaker(context: Context, private val prefs: Prefs) {
         val chosen = prefs.voiceName?.let { name -> t.voices?.firstOrNull { it.name == name } }
         if (segmentLang == Lang.VI && chosen != null) {
             t.voice = chosen
+            missingVoice = null
         } else {
-            t.language = segmentLang.locale
+            val result = t.setLanguage(segmentLang.locale)
+            if (result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                missingVoice = segmentLang
+                playState = PlayState.Idle
+                segmentIndex = -1
+                return
+            }
+            // LANG_MISSING_DATA: Google may still stream a network voice; onError reports a failure.
+            missingVoice = null
         }
         val gen = generation
         for (k in index until segments.size) {
@@ -144,9 +160,15 @@ class Speaker(context: Context, private val prefs: Prefs) {
         }
 
         @Deprecated("Deprecated in Java")
-        override fun onError(utteranceId: String?) = onMain(utteranceId) {
+        override fun onError(utteranceId: String?) = onError(utteranceId, TextToSpeech.ERROR)
+
+        override fun onError(utteranceId: String?, errorCode: Int) = onMain(utteranceId) {
             playState = PlayState.Idle
             segmentIndex = -1
+            val voiceMissing = errorCode == TextToSpeech.ERROR_NOT_INSTALLED_YET ||
+                (tts?.isLanguageAvailable(segmentLang.locale) ?: TextToSpeech.LANG_NOT_SUPPORTED) <
+                TextToSpeech.LANG_AVAILABLE
+            if (voiceMissing) missingVoice = segmentLang
         }
 
         /** Runs [block] on the main thread if the id belongs to the current reading. */
@@ -177,6 +199,7 @@ class Speaker(context: Context, private val prefs: Prefs) {
         const val GOOGLE_TTS = "com.google.android.tts"
 
         fun splitSentences(text: String): List<String> =
-            text.split(Regex("""(?<=[.!?…])\s+|\n+"""))
+            // Also after Chinese/Japanese "。！？" (no space follows them) and the Arabic "؟".
+            text.split(Regex("""(?<=[.!?…؟])\s+|(?<=[。！？])|\n+"""))
     }
 }

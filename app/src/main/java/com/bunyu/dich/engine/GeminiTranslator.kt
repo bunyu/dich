@@ -40,7 +40,7 @@ class GeminiTranslator(private val apiKey: () -> String?) {
 
     private fun call(model: String, key: String, texts: List<String>, from: Lang, to: Lang): List<String> {
         val instruction = """
-            You translate from ${NAMES.getValue(from)} to ${NAMES.getValue(to)} for an elderly Vietnamese woman who lives in France.
+            You translate from ${from.geminiName} to ${to.geminiName} for an elderly Vietnamese woman who lives in France and travels.
             The input is a JSON array of strings: text read by a phone camera from product labels, letters and signs,
             or sentences spoken at a market or while visiting.
             Return ONLY a JSON array of strings with exactly the same number of items, item i being the translation of item i.
@@ -96,7 +96,5 @@ class GeminiTranslator(private val apiKey: () -> String?) {
 
         /** Fast free-tier models, newest first; the next is tried if a name is not available. */
         val MODELS = listOf("gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-2.5-flash-lite", "gemini-2.5-flash")
-
-        val NAMES = mapOf(Lang.VI to "Vietnamese", Lang.FR to "French", Lang.EN to "English")
     }
 }

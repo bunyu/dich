@@ -37,10 +37,10 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_SPEAK_PHRASES, true)
         set(value) = sp.edit().putBoolean(KEY_SPEAK_PHRASES, value).apply()
 
-    /** Language of the other person in conversation mode (French or English). */
+    /** Language of the other person in conversation mode (any language but Vietnamese). */
     var vendorLang: Lang
-        get() = if (sp.getString(KEY_VENDOR_LANG, "fr") == "en") Lang.EN else Lang.FR
-        set(value) = sp.edit().putString(KEY_VENDOR_LANG, if (value == Lang.EN) "en" else "fr").apply()
+        get() = Lang.fromCode(sp.getString(KEY_VENDOR_LANG, null))?.takeIf { it != Lang.VI } ?: Lang.FR
+        set(value) = sp.edit().putString(KEY_VENDOR_LANG, value.code).apply()
 
     /**
      * Google Cloud Translation API key typed in family settings, or else the one built into the APK

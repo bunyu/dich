@@ -3,14 +3,11 @@ package com.bunyu.dich.engine
 import com.google.mlkit.nl.languageid.LanguageIdentification
 import kotlinx.coroutines.tasks.await
 
-/** Tells French, English and Vietnamese apart. Anything unsure counts as French (she lives in France). */
+/** Tells the app's languages apart. Anything unsure counts as French (she lives in France). */
 class LanguageGuesser {
     private val identifier = LanguageIdentification.getClient()
 
+    /** ML Kit answers "vi", "fr", "ar", "ja", "zh", "ko"…, or "und" when unsure. */
     suspend fun guess(text: String): Lang =
-        when (identifier.identifyLanguage(text).await()) {
-            "vi" -> Lang.VI
-            "en" -> Lang.EN
-            else -> Lang.FR
-        }
+        Lang.fromCode(identifier.identifyLanguage(text).await()) ?: Lang.FR
 }

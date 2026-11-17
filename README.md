@@ -1,6 +1,7 @@
 # Dịch
 
-An Android app that translates between French, English and Vietnamese, designed for an elderly
+An Android app that translates between Vietnamese and French, English, Arabic (Morocco),
+Japanese, Chinese or Korean, designed for an elderly
 person who only reads and speaks Vietnamese. The whole interface is in Vietnamese, buttons are
 large, and every translation is read aloud.
 
@@ -8,11 +9,15 @@ Status: camera translation, conversation mode, market phrases, history and onlin
 
 ## What it does today
 
-- **Đọc chữ** (read text): point the camera at a label or paper, press **Dịch**, and the
+- **Đọc chữ** (read text, Latin script plus Japanese, Chinese and Korean; Arabic labels cannot be
+  read because ML Kit has no Arabic text recognizer): point the camera at a label or paper, press **Dịch**, and the
   Vietnamese translation appears in large text and is read aloud. Works fully offline once the
   translation data is downloaded.
-- **Nói chuyện** (talk): split screen. The top half is upside down for the vendor (French or
-  English, toggle in the corner); the bottom half is hers in Vietnamese. Each side presses its own
+- **Nói chuyện** (talk): split screen. The top half is upside down for the vendor; the bottom half
+  is hers in Vietnamese. The other person's language (Français, English, العربية for Morocco,
+  日本語, 中文, 한국어) is chosen from the globe button on their half, or from "Người kia nói …" in
+  the middle bar. Moroccan speech is recognised as Moroccan Arabic (ar-MA) and translated into
+  simple Modern Standard Arabic; French also works in Morocco. Each side presses its own
   microphone button and speaks; the translation is shown large on the other half and read aloud.
   Prices like "3,50 €" are shown in big digits. Ready-made market phrases ("Bao nhiêu tiền?", …)
   work without speaking.

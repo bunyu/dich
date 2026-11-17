@@ -25,7 +25,7 @@ data class Turn(
     /** The Vietnamese side of this turn. */
     val vietnamese: String get() = if (speaker == Side.Her) heard else translated
 
-    /** The French or English side of this turn. */
+    /** The other person's side of this turn, in their language. */
     val foreign: String get() = if (speaker == Side.Her) translated else heard
 }
 
@@ -138,11 +138,13 @@ class TalkViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun toggleVendorLang() {
-        val next = if (ui.vendorLang == Lang.FR) Lang.EN else Lang.FR
-        app.prefs.vendorLang = next
+    /** The other person's language (French, English, Arabic, Japanese, Chinese or Korean). */
+    fun setVendorLang(lang: Lang) {
+        if (lang == Lang.VI || lang == ui.vendorLang) return
+        app.prefs.vendorLang = lang
         app.listener.cancel()
-        ui = TalkUi(vendorLang = next)
+        app.speaker.stop()
+        ui = TalkUi(vendorLang = lang)
     }
 
     fun stopAll() {
